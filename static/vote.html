@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+       
+      <!-- CSS only --> <!-- from Bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+    </head>
+    
+    <body style="background-color:rgb(53, 166, 33);"></body>
+        <h1> Rick & Morty Episode Vote </h1>
+        <h4> Check the Synopsis below and Vote</h4>
+        <img src="/images/RickAndMorty.png" alt="HTML5 Icon" style="width:128px;height:128px;">
+        <a href="https://www.theinternet.io/recap/summaries-spoilers-and-clips-for-rick-and-morty-season-1.html#ep1" class="btn btn-info" role="button">Link to Synopses</a>
+        
+        
+        <div id="template" style="display: none;">
+            <div class="card">
+                <div class="card-header" style="background-color:rgb(27, 198, 250);">
+                ##BANDNAME
+                </div>
+                <div class="card-body" style="background-color:rgb(242, 254, 8);">
+                <h5 class="card-title">##BANDNAME</h5>
+                <p class="card-text"><button class="btn btn-outline-primary"  onclick="vote('##BANDNAME')">vote</button></p>
+                
+                </div>
+            </div>
+        
+        </div>
+
+<!--return a bandlist and poplulate dynamically-->
+        <div id="bandlist">
+            
+        </div>
+
+        <script>
+            //runs from static folder
+            function init(){
+                populatepage()
+            }// based on a band inputted add the band to div
+            function populatepage(){
+                $.ajax({
+                    "url":"/band",
+                    "method":"GET",
+                    "data":"",
+                    "dataType":"JSON",
+                    "success":function(result){
+                        var bands = result;
+                        for (bandnumber in bands){
+                            band = bands[bandnumber]
+                            console.log(band)
+                            episode = band['name']
+                            addEp(episode)
+
+                        }
+                        
+                    },
+                    "error":function(xhr,status,error){
+                        console.log("status:"+status+" message:"+error);
+                    }
+
+                });
+            }
+
+            function addEp(episode){
+                var bandlistElement = document.getElementById('bandlist')
+                var bandtemplate = document.getElementById('template').innerHTML
+                newbandhtml = bandtemplate.replace(/##BANDNAME/g, episode)
+                bandlistElement.innerHTML += newbandhtml
+                
+            }
+            function vote(episode){
+                console.log("voting for "+episode)
+                $.ajax({
+                    "url":"/vote/"+episode,
+                    "method":"POST",
+                    "data":"",
+                    "dataType":"JSON",
+                    "success":function(result){
+                        votesuccess(episode)   
+                    },
+                    "error":function(xhr,status,error){
+                        console.log("status:"+status+" message:"+error);
+                    }
+                });
+            }//disable using jquery function after vote
+            function votesuccess(episode){
+                $('.btn-outline-primary').prop('disabled', true)
+            }
+
+            init()
+        </script>
+
+    </body>
+
+</html>
